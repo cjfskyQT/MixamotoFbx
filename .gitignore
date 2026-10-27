@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Runtime scratch (isolated Maya job profiles, auto-cleaned per job)
+.runtime_jobs/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Local output
+*_retargeted/
+*_retargeted_adv/
+*_baked.ma
+out/
+
+# Kept local on purpose: the MA malware-cleanup helper is not part of this
+# project. Remove this line to track it.
+MaCleaner/
