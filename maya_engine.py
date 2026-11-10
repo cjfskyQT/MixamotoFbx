@@ -185,8 +185,9 @@ def _retarget_impl(source, target=None, output=None, mapping=None, mode='fbx', s
         src_bind_origin=calibration['source_root_reference']
         tgt_bind_origin=calibration['target_root_reference']
         helpers={t:cmds.createNode('transform',name=token+'_drive',parent=helper_group) for _,t in pairs}
-        bake_step=.25 if contact_compensation else 1.
-        divisions=4 if contact_compensation else 1
+        from .foot_contact import CONTACT_SAMPLE_STEP
+        bake_step=CONTACT_SAMPLE_STEP if contact_compensation else 1.
+        divisions=round(1./bake_step)
         dense_roles={'Hips','LeftUpLeg','LeftLeg','LeftFoot','LeftToeBase','RightUpLeg','RightLeg','RightFoot','RightToeBase'}
         for sample in range((last-first)*divisions+1):
             frame=first+sample/divisions
@@ -322,6 +323,10 @@ def _retarget_impl(source, target=None, output=None, mapping=None, mode='fbx', s
             from .leg_ik import bake_legs_to_ik
             namespaces={t.rsplit('|',1)[-1].rpartition(':')[0] for t in targets}
             ik_stats=bake_legs_to_ik(cmds,om,first,last,namespaces,step=min(bake_step,.125))
+        if contact_stats.get('enabled') and contact_stats.get('phases'):
+            from .foot_contact import validate_support_motion
+            contact_stats['source_support_validation']=validate_support_motion(
+                cmds,om,calibration,contact_stats['phases'])
         writes=sum(cmds.keyframe(t,attribute=['rx','ry','rz'],query=True,keyframeCount=True) or 0 for t in targets)
         if not writes:
             raise RuntimeError('烘焙未产生旋转关键帧，拒绝报告成功。')
